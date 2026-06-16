@@ -74,8 +74,8 @@
   },
 
   "landmarks": {
-    "_comment": "Real models placed at their coordinates, scaled so the longest horizontal extent = size_mm. type 'file' loads an STL/3MF (up = which model axis points up); 'opera_house'/'harbour_bridge' are procedural fallbacks. Use end_a/end_b [lat,lon] to span+orient a bridge between two points; otherwise lat/lon + rotation_deg.",
-    "enabled": true,
+    "_comment": "Real models placed at their coordinates, scaled so the longest horizontal extent = size_mm. type 'file' loads an STL/3MF (up = which model axis points up); 'opera_house'/'harbour_bridge' are procedural fallbacks. Use end_a/end_b [lat,lon] to span+orient a bridge between two points; otherwise lat/lon + rotation_deg. Set enabled=true to bake landmarks into the model.",
+    "enabled": false,
     "items": [
       { "type": "opera_house",
         "lat": -33.8568, "lon": 151.2153, "size_mm": 20, "rotation_deg": -30 },

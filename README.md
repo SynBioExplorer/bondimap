@@ -12,8 +12,11 @@ Each map category is exported as a **separate, pre-coloured object** in the
 
 ![Top-down preview of the default Sydney Harbour / Bondi model](docs/preview.png)
 
-*Top-down preview (auto-generated alongside the `.3mf`): white land, grey
-buildings, blue water, green parks, dark arterial roads, black frame.*
+*Hillshaded top-down preview (auto-generated alongside the `.3mf`). Default
+scheme is the black-water / matte-white-relief look above — water and frame
+black, land/buildings/parks/streets white, with 4× vertical exaggeration so the
+topography carries the detail. All of this is just `colors` and
+`vertical_exaggeration` in `config.json`.*
 
 ## Setup
 

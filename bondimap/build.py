@@ -118,6 +118,7 @@ def run(config_path):
             if cfg["output"].get("preview", True):
                 from .preview import save_preview
                 save_preview(out_dir / f"{name}_{label}.png", (x0, x1), (y0, y1),
-                             cfg["colors"], wpolys, gpolys, spolys, bpolys)
+                             cfg["colors"], wpolys, gpolys, spolys, bpolys,
+                             z_mm=z_mm, size=size)
 
     print(f"\nDone in {time.time() - t0:.0f}s -> {out_dir}")

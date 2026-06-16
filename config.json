@@ -12,7 +12,7 @@
   "model": {
     "size_mm": 500.0,
     "base_thickness_mm": 2.0,
-    "vertical_exaggeration": 3.0,
+    "vertical_exaggeration": 4.0,
     "building_height_scale": 1.0,
     "terrain_smoothing_sigma_px": 1.5,
     "terrain_grid_per_side": 1200
@@ -48,12 +48,12 @@
   },
 
   "colors": {
-    "_comment": "sRGB hex (matched to your map2model export). These map straight to objects in the .3mf; assign an AMS filament to each in Bambu Studio.",
+    "_comment": "sRGB hex. Black-ocean / white-relief scheme: water+frame black, everything else white (print in matte white filament). Each maps to one object in the .3mf -> assign an AMS filament per object.",
     "terrain": "#FFFFFF",
-    "water": "#3399FF",
-    "trees": "#0FE300",
-    "buildings": "#B8B8B8",
-    "streets": "#262626",
+    "water": "#000000",
+    "trees": "#FFFFFF",
+    "buildings": "#FFFFFF",
+    "streets": "#FFFFFF",
     "frame": "#000000"
   },
 

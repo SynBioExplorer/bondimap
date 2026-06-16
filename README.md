@@ -48,6 +48,18 @@ model in any browser (Three.js loads from a CDN; the geometry is embedded as a
 base64 GLB, so no server or local-file fetch is needed). The terrain is
 decimated to keep the file reasonable; colours follow `config.json`.
 
+### Placing landmarks interactively
+
+```bash
+python make_placer.py            # writes output/placer.html
+```
+
+Open it, **click a landmark** to select, switch **Move / Rotate / Scale** (W/E/R),
+drag the gizmo to position it on the map, and the panel shows a live, config-ready
+`landmarks.items` JSON (lat / lon / size_mm / rotation_deg). Copy that into
+`config.json`, set `landmarks.enabled: true`, and rerun `run.py`. (Reuses the
+viewer's map GLB, so it builds in seconds.)
+
 ### Landmarks
 
 The `landmarks` block places real models (or procedural fallbacks) at their

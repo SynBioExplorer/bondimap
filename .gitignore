@@ -1,0 +1,17 @@
+# Generated artifacts
+output/
+*.3mf
+*.stl
+*.step
+
+# Local map2model export (personal design file)
+project.json
+
+# Python
+__pycache__/
+*.pyc
+.Python
+*.egg-info/
+
+# OS
+.DS_Store

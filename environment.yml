@@ -1,0 +1,17 @@
+name: bondimap
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - shapely>=2.0
+  - pyproj
+  - pillow
+  - requests
+  - tqdm
+  - trimesh
+  - networkx
+  - lxml
+  - mapbox_earcut
+  - python-duckdb>=1.1

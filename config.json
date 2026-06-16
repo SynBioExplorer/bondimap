@@ -1,0 +1,78 @@
+{
+  "_about": "Edit this file to change the model. Coordinates define the area; everything else is sizing/colors. Run: python run.py config.json",
+
+  "area": {
+    "_comment": "bbox is [west, south, east, north] in degrees (the box drawn on map2model). Set bbox=null and use center_lat/lon + span_m instead if you prefer a square defined by its centre.",
+    "bbox": [151.186981, -33.906443, 151.311264, -33.791207],
+    "center_lat": -33.8908,
+    "center_lon": 151.2743,
+    "span_m": 8000
+  },
+
+  "model": {
+    "size_mm": 500.0,
+    "base_thickness_mm": 2.0,
+    "vertical_exaggeration": 3.0,
+    "building_height_scale": 1.0,
+    "terrain_smoothing_sigma_px": 1.5,
+    "terrain_grid_per_side": 1600
+  },
+
+  "tiling": {
+    "_comment": "1x1 = a single 500 mm piece (chunk it yourself in the slicer). Set rows/cols to 2 for four 250 mm tiles that fit the 256 mm X1E plate.",
+    "rows": 1,
+    "cols": 1
+  },
+
+  "frame": {
+    "enabled": true,
+    "width_mm": 4.0,
+    "height_mm": 4.0
+  },
+
+  "features": {
+    "min_feature_mm": 0.6,
+    "buildings": { "default_height_m": 6.0, "min_footprint_mm": 0.6, "min_height_mm": 0.6, "embed_mm": 0.6 },
+    "roads": {
+      "thickness_mm": 0.8,
+      "offset_mm": 0.4,
+      "class_width_m": {
+        "motorway": 32, "trunk": 26, "primary": 20, "secondary": 16,
+        "tertiary": 12, "residential": 9, "living_street": 8, "unclassified": 9,
+        "service": 6, "track": 5, "cycleway": 4, "footway": 3, "path": 3, "steps": 3
+      },
+      "default_width_m": 9
+    },
+    "water": { "level_mm": 2.4, "thickness_mm": 1.2 },
+    "trees": { "thickness_mm": 0.8, "canopy_offset_mm": 0.4 }
+  },
+
+  "colors": {
+    "_comment": "sRGB hex (matched to your map2model export). These map straight to objects in the .3mf; assign an AMS filament to each in Bambu Studio.",
+    "terrain": "#FFFFFF",
+    "water": "#3399FF",
+    "trees": "#0FE300",
+    "buildings": "#B8B8B8",
+    "streets": "#262626",
+    "frame": "#000000"
+  },
+
+  "elevation": {
+    "_comment": "Mapterhorn terrarium tiles; AWS Mapzen terrarium PNG is the per-tile fallback (identical encoding). zoom 14 ~ 5 m/px here (finer than the model can print at this scale); 15 for max relief detail, 13 to fetch fewer tiles.",
+    "source": "mapterhorn",
+    "zoom": 14,
+    "mapterhorn_url": "https://tiles.mapterhorn.com/{z}/{x}/{y}.webp",
+    "fallback_url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
+  },
+
+  "overture": {
+    "release": "2026-05-20.0",
+    "s3_region": "us-west-2",
+    "green_subtypes": ["forest", "grass", "wood", "tree", "scrub", "heath", "wetland", "park", "garden", "recreation_ground", "golf_course", "cemetery", "national_park", "nature_reserve", "meadow", "grassland", "greenfield", "village_green", "pitch"]
+  },
+
+  "output": {
+    "dir": "output",
+    "name": "bondi"
+  }
+}

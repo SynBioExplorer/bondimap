@@ -55,7 +55,8 @@
     "trees": "#FFFFFF",
     "buildings": "#FFFFFF",
     "streets": "#FFFFFF",
-    "frame": "#000000"
+    "frame": "#000000",
+    "landmarks": "#FFFFFF"
   },
 
   "elevation": {
@@ -70,6 +71,18 @@
     "release": "2026-05-20.0",
     "s3_region": "us-west-2",
     "green_subtypes": ["forest", "grass", "wood", "tree", "scrub", "heath", "wetland", "park", "garden", "recreation_ground", "golf_course", "cemetery", "national_park", "nature_reserve", "meadow", "grassland", "greenfield", "village_green", "pitch"]
+  },
+
+  "landmarks": {
+    "_comment": "Real models placed at their coordinates, scaled so the longest horizontal extent = size_mm. type 'file' loads an STL/3MF (up = which model axis points up); 'opera_house'/'harbour_bridge' are procedural fallbacks. Use end_a/end_b [lat,lon] to span+orient a bridge between two points; otherwise lat/lon + rotation_deg.",
+    "enabled": true,
+    "items": [
+      { "type": "opera_house",
+        "lat": -33.8568, "lon": 151.2153, "size_mm": 20, "rotation_deg": -30 },
+      { "type": "file", "file": "habourbridge.stl", "up": "z",
+        "end_a": [-33.8548, 151.2108], "end_b": [-33.8505, 151.2115],
+        "size_mm": 44, "rotation_deg": 0 }
+    ]
   },
 
   "output": {

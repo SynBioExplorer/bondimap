@@ -48,6 +48,27 @@ model in any browser (Three.js loads from a CDN; the geometry is embedded as a
 base64 GLB, so no server or local-file fetch is needed). The terrain is
 decimated to keep the file reasonable; colours follow `config.json`.
 
+### Landmarks
+
+The `landmarks` block places real models (or procedural fallbacks) at their
+coordinates, scaled so the longest horizontal extent = `size_mm` (oversized so
+they read on the map — at true scale the Opera House is only ~7 mm). Each item:
+
+- `"type": "file"` — load an STL/3MF (`up` = which model axis points up; the
+  loader re-orients to Z-up and aligns the long axis to +X).
+- `"type": "opera_house"` / `"harbour_bridge"` — built-in procedural icons.
+- Position with `lat`/`lon` (+ `rotation_deg`), or span a bridge between
+  `end_a`/`end_b` `[lat, lon]` (auto-oriented along the bearing).
+
+Defaults: the **bridge** uses the supplied assembled `habourbridge.stl`; the
+**Opera House** uses the built-in procedural sails (the supplied
+`operahouse.stl` was a giant-podium / tiny-sails model that read as a featureless
+block at map scale, so the procedural icon is clearer — swap back via
+`{"type": "file", "file": "operahouse.stl", ...}` if preferred). Both sit on the
+terrain / water and export as a `landmarks` object you can colour or
+filament-assign independently. (The original `harbourbridge.3mf` was a flat
+print-kit layout of 11 unassembled parts, hence the re-uploaded STL.)
+
 ## What it produces
 
 - **Size**: `model.size_mm` across (default 500 mm), split into

@@ -7,12 +7,12 @@ from pathlib import Path
 
 import numpy as np
 from shapely import STRtree
-from shapely.geometry import box
+from shapely.geometry import Point, box
 
-from . import config, elevation, mesh, overture
+from . import config, elevation, landmarks, mesh, overture
 from .export import write_3mf
 
-CATEGORIES = ["terrain", "water", "trees", "buildings", "streets", "frame"]
+CATEGORIES = ["terrain", "water", "trees", "buildings", "streets", "frame", "landmarks"]
 
 
 def _rgba(hex_color: str):
@@ -93,6 +93,8 @@ def run(config_path):
                          float(cfg["model"]["base_thickness_mm"]))
     sampler = elevation.TerrainSampler(cfg, z_mm)
     road_polys = mesh.roads_to_polygons(cfg, roads)
+    landmark_mesh = landmarks.build_landmarks(cfg, sampler, colors["landmarks"])
+    landmark_pt = Point(*landmark_mesh.centroid[:2]) if landmark_mesh is not None else None
 
     b_geoms = [g for g, _ in buildings]
     b_h = [h for _, h in buildings]
@@ -144,6 +146,8 @@ def run(config_path):
                     cfg, sampler, list(zip(bpolys, bheights)), colors["buildings"]),
                 "streets": mesh.streets_tile(cfg, sampler, spolys, colors["streets"]),
                 "frame": mesh.frame_tile(cfg, r, c, x0, x1, y0, y1, colors["frame"]),
+                "landmarks": (landmark_mesh if landmark_pt is not None
+                              and tilebox.contains(landmark_pt) else None),
             }
             write_3mf(out_dir / f"{name}_{label}.3mf", meshes, cfg["colors"])
 

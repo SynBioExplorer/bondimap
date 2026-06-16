@@ -15,7 +15,7 @@
     "vertical_exaggeration": 3.0,
     "building_height_scale": 1.0,
     "terrain_smoothing_sigma_px": 1.5,
-    "terrain_grid_per_side": 1600
+    "terrain_grid_per_side": 1200
   },
 
   "tiling": {
@@ -73,6 +73,7 @@
 
   "output": {
     "dir": "output",
-    "name": "bondi"
+    "name": "bondi",
+    "preview": true
   }
 }

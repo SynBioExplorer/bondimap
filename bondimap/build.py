@@ -73,7 +73,6 @@ def run(config_path):
 
     # --- tiles ---
     rows, cols = cfg["tiling"]["rows"], cfg["tiling"]["cols"]
-    single = rows == 1 and cols == 1   # whole area is one tile: no clipping needed
     size = cfg.size_mm
     out_dir = Path(cfg.path.parent, cfg["output"]["dir"])
     name = cfg["output"]["name"]
@@ -90,24 +89,20 @@ def run(config_path):
 
             terrain_mesh, _ = mesh.terrain_tile(cfg, z_mm, x0, x1, y0, y1, colors["terrain"])
 
-            if single:
-                bt, bg, bh = layers["buildings"]
-                bpolys, bheights = bg, bh
-                spolys = layers["streets"][1]
-                wpolys = layers["water"][1]
-                gpolys = layers["trees"][1]
-            else:
-                bt, bg, bh = layers["buildings"]
-                bpolys, bheights = _clip(bt, bg, bh, tilebox) if bt else ([], [])
+            # Clip every layer to the tile box. Besides splitting tiles, this
+            # crops features that merely overlap the area (ocean, long roads,
+            # large land polygons) so nothing sprawls past the model border.
+            bt, bg, bh = layers["buildings"]
+            bpolys, bheights = _clip(bt, bg, bh, tilebox) if bt else ([], [])
 
-                st, sg, _ = layers["streets"]
-                spolys, _ = _clip(st, sg, None, tilebox) if st else ([], [])
+            st, sg, _ = layers["streets"]
+            spolys, _ = _clip(st, sg, None, tilebox) if st else ([], [])
 
-                wt, wg, _ = layers["water"]
-                wpolys, _ = _clip(wt, wg, None, tilebox) if wt else ([], [])
+            wt, wg, _ = layers["water"]
+            wpolys, _ = _clip(wt, wg, None, tilebox) if wt else ([], [])
 
-                gt, gg, _ = layers["trees"]
-                gpolys, _ = _clip(gt, gg, None, tilebox) if gt else ([], [])
+            gt, gg, _ = layers["trees"]
+            gpolys, _ = _clip(gt, gg, None, tilebox) if gt else ([], [])
 
             meshes = {
                 "terrain": terrain_mesh,
@@ -119,5 +114,10 @@ def run(config_path):
                 "frame": mesh.frame_tile(cfg, r, c, x0, x1, y0, y1, colors["frame"]),
             }
             write_3mf(out_dir / f"{name}_{label}.3mf", meshes, cfg["colors"])
+
+            if cfg["output"].get("preview", True):
+                from .preview import save_preview
+                save_preview(out_dir / f"{name}_{label}.png", (x0, x1), (y0, y1),
+                             cfg["colors"], wpolys, gpolys, spolys, bpolys)
 
     print(f"\nDone in {time.time() - t0:.0f}s -> {out_dir}")

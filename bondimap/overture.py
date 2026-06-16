@@ -8,6 +8,8 @@ and cleaned with buffer(0).
 
 from __future__ import annotations
 
+import time
+
 import numpy as np
 import shapely
 from shapely import wkb
@@ -24,6 +26,11 @@ def _connect(cfg: Config):
     con.execute("INSTALL spatial; LOAD spatial;")
     con.execute("INSTALL httpfs; LOAD httpfs;")
     con.execute(f"SET s3_region='{cfg['overture']['s3_region']}';")
+    for setting in ("SET http_retries=5;", "SET http_timeout=30000;"):
+        try:
+            con.execute(setting)
+        except Exception:
+            pass
     return con
 
 
@@ -48,8 +55,18 @@ def _to_model(cfg: Config, geom):
     return shp_transform(fn, geom)
 
 
-def _load_rows(con, sql, cfg, extra_cols):
-    rows = con.execute(sql).fetchall()
+def _load_rows(con, sql, cfg, extra_cols, attempts=5):
+    # Remote S3 reads occasionally hit a transient DNS / IO error; retry rather
+    # than lose a multi-minute build.
+    for i in range(attempts):
+        try:
+            rows = con.execute(sql).fetchall()
+            break
+        except Exception as exc:
+            if i == attempts - 1:
+                raise
+            print(f"  Overture query retry {i + 1}/{attempts - 1} after: {str(exc)[:90]}")
+            time.sleep(4 * (i + 1))
     out = []
     for row in rows:
         geom = wkb.loads(bytes(row[0]))

@@ -13,5 +13,6 @@ dependencies:
   - trimesh
   - networkx
   - lxml
+  - matplotlib
   - mapbox_earcut
   - python-duckdb>=1.1

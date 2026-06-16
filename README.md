@@ -10,6 +10,11 @@ needs, so it doesn't hit the out-of-memory wall that the browser tool does.
 Each map category is exported as a **separate, pre-coloured object** in the
 `.3mf`, so in Bambu Studio you just assign an AMS filament per object.
 
+![Top-down preview of the default Sydney Harbour / Bondi model](docs/preview.png)
+
+*Top-down preview (auto-generated alongside the `.3mf`): white land, grey
+buildings, blue water, green parks, dark arterial roads, black frame.*
+
 ## Setup
 
 ```bash

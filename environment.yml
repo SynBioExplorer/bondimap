@@ -16,3 +16,6 @@ dependencies:
   - matplotlib
   - mapbox_earcut
   - python-duckdb>=1.1
+  - pip
+  - pip:
+      - lib3mf

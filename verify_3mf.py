@@ -26,6 +26,21 @@ def main(path):
     assert bases, "no base materials (colours) written"
     assert len(objects) == len(bases), "object/material count mismatch"
 
+    # Strict OPC read with lib3mf (the reference reader slicers are tested
+    # against). trimesh is lenient and will load a malformed package that
+    # OrcaSlicer/Bambu Studio reject, so this is the authoritative check.
+    import lib3mf
+    w = lib3mf.get_wrapper()
+    lm = w.CreateModel()
+    lm.QueryReader("3mf").ReadFromFile(str(path))
+    it = lm.GetMeshObjects()
+    lib3mf_objs = []
+    while it.MoveNext():
+        o = it.GetCurrentMeshObject()
+        lib3mf_objs.append(o.GetName())
+    assert lib3mf_objs, "lib3mf found no mesh objects (OPC/structure invalid)"
+    print(f"lib3mf    : strict read OK -> {lib3mf_objs}")
+
     scene = trimesh.load(path, process=False)
     geoms = scene.geometry if hasattr(scene, "geometry") else {"_": scene}
     print(f"reloaded  : {len(geoms)} geometr(ies)")

@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
+import numpy as np
 from shapely import STRtree
 from shapely.geometry import box
 
@@ -33,6 +34,33 @@ def _poly_parts(g):
     return []
 
 
+def _carve_seabed(z_mm, water_polys, size, seabed_z):
+    """Lower terrain to a flat seabed wherever there is water (model mm).
+
+    Rasterises the water polygons onto the height grid and clamps those cells
+    down to the base level, so white land can't poke up through the black sea
+    near coastlines and the water slab rests on a clean flat bottom.
+    """
+    if not water_polys:
+        return z_mm
+    from PIL import Image, ImageDraw
+
+    n = z_mm.shape[0]
+    s = (n - 1) / size
+    img = Image.new("L", (n, n), 0)
+    draw = ImageDraw.Draw(img)
+    for poly in water_polys:
+        if poly.geom_type != "Polygon" or poly.is_empty:
+            continue
+        draw.polygon([(x * s, y * s) for x, y in poly.exterior.coords], fill=255)
+        for ring in poly.interiors:
+            draw.polygon([(x * s, y * s) for x, y in ring.coords], fill=0)
+    mask = np.asarray(img) > 127
+    z_mm[mask] = np.minimum(z_mm[mask], seabed_z)
+    print(f"Seabed    : flattened {int(mask.sum()):,} grid cells under water")
+    return z_mm
+
+
 def _clip(tree, geoms, attrs, tilebox):
     """Clip a category's geoms to the tile box using a prebuilt STRtree."""
     if not geoms:
@@ -53,13 +81,17 @@ def run(config_path):
 
     # --- terrain ---
     z_mm = elevation.build_terrain(cfg)
-    sampler = elevation.TerrainSampler(cfg, z_mm)
 
     # --- vector layers (full area, model-mm coords) ---
     buildings = overture.fetch_buildings(cfg)
     roads = overture.fetch_roads(cfg)
     water = overture.fetch_water(cfg)
     green = overture.fetch_green(cfg)
+
+    # Flatten a seabed under the water before sampling terrain heights.
+    z_mm = _carve_seabed(z_mm, water, cfg.size_mm,
+                         float(cfg["model"]["base_thickness_mm"]))
+    sampler = elevation.TerrainSampler(cfg, z_mm)
     road_polys = mesh.roads_to_polygons(cfg, roads)
 
     b_geoms = [g for g, _ in buildings]

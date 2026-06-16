@@ -37,6 +37,17 @@ conda activate bondimap
 
 A tiny, fast smoke-test config is included: `python run.py test_config.json`.
 
+### Interactive 3D viewer (HTML)
+
+```bash
+python make_viewer.py output/bondi_r0c0.3mf config.json
+```
+
+Writes a self-contained `output/bondi_r0c0.html` — double-click to orbit the
+model in any browser (Three.js loads from a CDN; the geometry is embedded as a
+base64 GLB, so no server or local-file fetch is needed). The terrain is
+decimated to keep the file reasonable; colours follow `config.json`.
+
 ## What it produces
 
 - **Size**: `model.size_mm` across (default 500 mm), split into

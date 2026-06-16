@@ -43,7 +43,8 @@
       },
       "default_width_m": 9
     },
-    "water": { "level_mm": 2.4, "thickness_mm": 1.2 },
+    "water": { "level_mm": 2.8, "thickness_mm": 1.6,
+               "waves": { "enabled": true, "amplitude_mm": 0.45, "mesh_max_area_mm2": 4.0 } },
     "trees": { "thickness_mm": 0.8, "canopy_offset_mm": 0.4 }
   },
 

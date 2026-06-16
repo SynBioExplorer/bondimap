@@ -19,3 +19,4 @@ dependencies:
   - pip
   - pip:
       - lib3mf
+      - fast-simplification

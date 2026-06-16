@@ -8,6 +8,8 @@ trimesh, and each trimesh becomes one coloured object in the .3mf.
 
 from __future__ import annotations
 
+import math
+
 import mapbox_earcut as earcut
 import numpy as np
 import trimesh
@@ -199,13 +201,76 @@ def _drape(poly, sampler, offset, thickness, flat_z=None):
     return _prism(poly, z_bottom=z_bot, z_top=z_top)
 
 
+# Superimposed sine waves -> a calm sea with swells and a cross-current.
+# (wavelength_mm, relative_amplitude, direction_rad, phase)
+_WAVE_COMPONENTS = [
+    (175.0, 1.00, math.radians(25),  0.0),   # long swell / main current
+    (135.0, 0.70, math.radians(50),  1.7),   # second current direction
+    (95.0,  0.60, math.radians(115), 2.1),
+    (60.0,  0.50, math.radians(70),  1.3),
+    (38.0,  0.35, math.radians(20),  0.7),
+    (24.0,  0.22, math.radians(160), 3.0),   # short chop
+]
+
+
+def _waved_slab(poly, z_bottom, wave_fn, max_area):
+    """Slab with a flat bottom and a wave-modulated top over a polygon.
+
+    Triangulated with the `triangle` engine so the surface carries interior
+    vertices (earcut only meshes the outline, which can't show waves).
+    """
+    if poly.is_empty or poly.area <= 0 or poly.geom_type != "Polygon":
+        return None
+    try:
+        v2d, faces = trimesh.creation.triangulate_polygon(
+            poly, triangle_args=f"pa{max_area:.3f}", engine="triangle")
+    except Exception:
+        return None
+    if faces is None or len(faces) == 0:
+        return None
+    faces = np.asarray(faces, dtype=np.int64)
+    n = len(v2d)
+    verts = np.vstack([np.column_stack([v2d, wave_fn(v2d)]),
+                       np.column_stack([v2d, np.full(n, z_bottom)])])
+    out = [faces, faces[:, ::-1] + n]                  # top up, bottom reversed
+    edges = np.sort(faces[:, [0, 1, 1, 2, 2, 0]].reshape(-1, 2), axis=1)
+    uniq, cnt = np.unique(edges, axis=0, return_counts=True)
+    a, b = uniq[cnt == 1].T                             # boundary edges -> walls
+    out.append(np.column_stack([a, b, b + n]))
+    out.append(np.column_stack([a, b + n, a + n]))
+    return verts, np.vstack(out)
+
+
 def water_tile(cfg, sampler, polys, color):
-    # `level_mm` is the absolute model-z of the (flat) water surface, e.g. 2.4 mm
-    # sits 0.4 mm above a 2.0 mm datum base so the sea reads as calm and proud.
+    """Uniform flat-bottomed black water layer, optionally with a wave top.
+
+    The bottom is always one flat plane at `level - thickness` (uniform layer
+    height); only the top is modulated, so even with waves the water reads as a
+    single calm sheet rather than varying in height per body.
+    """
     wcfg = cfg["features"]["water"]
     level = float(wcfg["level_mm"])
     thick = float(wcfg["thickness_mm"])
-    pieces = [_drape(p, sampler, 0.0, thick, flat_z=level) for p in polys]
+    waves = wcfg.get("waves", {})
+
+    if not waves.get("enabled"):
+        pieces = [_drape(p, sampler, 0.0, thick, flat_z=level) for p in polys]
+        return _combine(pieces, color)
+
+    amp = float(waves["amplitude_mm"])
+    max_area = float(waves.get("mesh_max_area_mm2", 4.0))
+    norm = amp / sum(a for _, a, _, _ in _WAVE_COMPONENTS)
+
+    def wave_fn(v2d):
+        h = np.zeros(len(v2d))
+        for wl, a, ang, ph in _WAVE_COMPONENTS:
+            k = 2.0 * math.pi / wl
+            h += a * np.sin(k * (v2d[:, 0] * math.cos(ang)
+                                 + v2d[:, 1] * math.sin(ang)) + ph)
+        return level + h * norm
+
+    z_bottom = level - thick
+    pieces = [_waved_slab(p, z_bottom, wave_fn, max_area) for p in polys]
     return _combine(pieces, color)
 
 
